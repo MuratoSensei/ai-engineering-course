@@ -183,82 +183,83 @@ df_clean = new_df.drop_duplicates()
 
 # ****************************Step 6 — Feature Scaling****************************
 
-df_missing = df_clean.copy()
+# df_missing = df_clean.copy()
 
-null_data = df_missing.sample(50, random_state=42).index
-df_missing.loc[null_data, 'release_year'] = np.nan
+# null_data = df_missing.sample(50, random_state=42).index
+# df_missing.loc[null_data, 'release_year'] = np.nan
 
-df_movies = df_missing[df_missing['type'] == 'Movie'].copy()
-df_movies['duration_num'] = df_movies['duration'].str.extract(r'(\d+)').astype(float)
+# df_movies = df_missing[df_missing['type'] == 'Movie'].copy()
+# df_movies['duration_num'] = df_movies['duration'].str.extract(r'(\d+)').astype(float)
 
-df_tv_shows = df_missing[df_missing['type'] == 'TV Show'].copy()
-df_tv_shows['duration_num'] = df_tv_shows['duration'].str.extract(r'(\d+)').astype(float)
+# df_tv_shows = df_missing[df_missing['type'] == 'TV Show'].copy()
+# df_tv_shows['duration_num'] = df_tv_shows['duration'].str.extract(r'(\d+)').astype(float)
 
-null = df_movies[df_movies['duration_num'].isnull()].index
-
-
-imputer = KNNImputer(n_neighbors=10)
-
-num_col = ['release_year', 'duration_num']
-if not df_movies.empty and df_movies[num_col].isnull().any(axis=None):
-    df_movies[num_col] = imputer.fit_transform(df_movies[num_col])
-
-if not df_tv_shows.empty and df_tv_shows[num_col].isnull().any(axis=None):
-    df_tv_shows[num_col] = imputer.fit_transform(df_tv_shows[num_col])
-
-df_movies['duration'] = df_movies['duration_num'].astype(str) + ' min'
-df_tv_shows['duration'] = df_tv_shows['duration_num'].apply(
-    lambda x: f"{int(x)} Seasons" if int(x)==1 else f"{int(x)} Seasons"
-)
-
-df_combined_clean = pd.concat([df_movies, df_tv_shows], axis=0).sort_index()
-
-df_missing['duration'] = df_combined_clean['duration'].copy()
-df_missing['release_year'] = df_combined_clean['release_year'].copy()
+# null = df_movies[df_movies['duration_num'].isnull()].index
 
 
-year_column = df_missing['release_year']
+# imputer = KNNImputer(n_neighbors=10)
 
-Q1 = year_column.quantile(0.25)
-Q3 = year_column.quantile(0.75)
+# num_col = ['release_year', 'duration_num']
+# if not df_movies.empty and df_movies[num_col].isnull().any(axis=None):
+#     df_movies[num_col] = imputer.fit_transform(df_movies[num_col])
 
-IQR = Q3 - Q1
+# if not df_tv_shows.empty and df_tv_shows[num_col].isnull().any(axis=None):
+#     df_tv_shows[num_col] = imputer.fit_transform(df_tv_shows[num_col])
 
-lower_bound = Q1 - 1.5 * IQR
-upper_bound = Q3 + 1.5 * IQR
+# df_movies['duration'] = df_movies['duration_num'].astype(str) + ' min'
+# df_tv_shows['duration'] = df_tv_shows['duration_num'].apply(
+#     lambda x: f"{int(x)} Seasons" if int(x)==1 else f"{int(x)} Seasons"
+# )
 
-df_clean_outliers=df_missing.copy()
+# df_combined_clean = pd.concat([df_movies, df_tv_shows], axis=0).sort_index()
 
-df_clean_outliers['release_year'] = df_clean_outliers['release_year'].clip(lower_bound, upper_bound)
+# df_missing['duration'] = df_combined_clean['duration'].copy()
+# df_missing['release_year'] = df_combined_clean['release_year'].copy()
 
-df_scaling = df_clean_outliers.dropna().copy()
 
-# MinMaxScaler
-minmax_scaler = MinMaxScaler()
-df_scaling['MinMax_Scaled_Year'] = minmax_scaler.fit_transform(df_scaling[['release_year']])
+# year_column = df_missing['release_year']
 
-# StandardScaler
-standard_scaler = StandardScaler()
-df_scaling['Standard_Scaled_Year'] = standard_scaler.fit_transform(df_scaling[['release_year']])
+# Q1 = year_column.quantile(0.25)
+# Q3 = year_column.quantile(0.75)
 
-# print(df_scaling.head())
+# IQR = Q3 - Q1
 
-# ****************************Step 7 — Final ML Preparation****************************
+# lower_bound = Q1 - 1.5 * IQR
+# upper_bound = Q3 + 1.5 * IQR
 
-x =df_scaling[['MinMax_Scaled_Year']]
+# df_clean_outliers=df_missing.copy()
 
-y = df_clean_outliers.loc[df_scaling.index, 'type']
+# df_clean_outliers['release_year'] = df_clean_outliers['release_year'].clip(lower_bound, upper_bound)
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+# df_scaling = df_clean_outliers.dropna().copy()
 
-print(f"""
-    x_train.shape : {x_train.shape}
-    x_test.shape  : {x_test.shape}
-    y_train.shape : {y_train.shape}
-    y_test.shape  : {y_test.shape}
-""")
+# # MinMaxScaler
+# minmax_scaler = MinMaxScaler()
+# df_scaling['MinMax_Scaled_Year'] = minmax_scaler.fit_transform(df_scaling[['release_year']])
 
-print("\nDataset preprocessing completed successfully.")
+# # StandardScaler
+# standard_scaler = StandardScaler()
+# df_scaling['Standard_Scaled_Year'] = standard_scaler.fit_transform(df_scaling[['release_year']])
+
+# # print(df_scaling.head())
+
+# # ****************************Step 7 — Final ML Preparation****************************
+
+# x =df_scaling[['MinMax_Scaled_Year']]
+
+# y = df_clean_outliers.loc[df_scaling.index, 'type']
+
+# x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+# print(f"""
+#     x_train.shape : {x_train.shape}
+#     x_test.shape  : {x_test.shape}
+#     y_train.shape : {y_train.shape}
+#     y_test.shape  : {y_test.shape}
+# """)
+
+# print("\nDataset preprocessing completed successfully.")
+
 
 
 
