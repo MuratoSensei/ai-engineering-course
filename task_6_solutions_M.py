@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 
 # ****************************STEP 1: Load the dataset****************************
-df = pd.read_csv(r"C:\Users\Nihad\Desktop\Python code\netflix_titles.csv")
+df = pd.read_csv(r"netflix_titles.csv")
 
 # print(df.head(10))
 # print(df.shape)
